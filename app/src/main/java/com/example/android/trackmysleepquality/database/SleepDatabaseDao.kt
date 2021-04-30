@@ -38,7 +38,7 @@ interface SleepDatabaseDao {
     suspend fun clear()
 
     @Query("SELECT * FROM sleep_night ORDER BY nightId DESC")
-    fun getAllNights(): LiveData<List<SleepNight>>
+    suspend fun getAllNights(): LiveData<List<SleepNight>>
 
     @Query("SELECT * FROM sleep_night ORDER BY nightId DESC LIMIT 1")
     suspend fun getTonight(): SleepNight?
