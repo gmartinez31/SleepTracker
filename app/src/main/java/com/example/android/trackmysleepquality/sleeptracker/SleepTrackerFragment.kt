@@ -55,8 +55,9 @@ class SleepTrackerFragment : Fragment() {
         val dataSource = SleepDatabase.getInstance(application).sleepDatabaseDao
         val vmFactory = SleepTrackerViewModelFactory(dataSource, application)
         val vm = ViewModelProvider(this, vmFactory).get(SleepTrackerViewModel::class.java)
+
         val adapter = SleepNightAdapter(SleepNightListener {
-            nightId -> Toast.makeText(context, "$nightId", Toast.LENGTH_LONG).show()
+            nightId -> vm.onSleepNightClicked(nightId)
         })
 
         binding.sleepTrackerViewModel = vm
@@ -68,10 +69,19 @@ class SleepTrackerFragment : Fragment() {
 
         binding.sleepList.adapter = adapter
 
+        vm.navigateToSleepDataQuality.observe(viewLifecycleOwner, Observer {
+            night -> night?.let {
+                this.findNavController().navigate(SleepTrackerFragmentDirections
+                        //.actionSleepTrackerFragmentToSleepDetailFragment(night)) // since we don't have sleepDetail fragment let's just navigate elsewhere
+                        .actionSleepTrackerFragmentToSleepQualityFragment(night))
+                vm.onSleepDataQualityNavigated()
+            }
+        })
+
         vm.nights.observe(viewLifecycleOwner, Observer {
             it?.let {
 //                adapter.data = it
-                adapter.submitList(it) // provided by ListAdapter
+                adapter.addHeaderAndSubmitList(it) // provided by ListAdapter
             }
         })
 
